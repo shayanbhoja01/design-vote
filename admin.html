@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Design Vote - Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f6f5f2;--card:#fff;--ink:#17161a;--mute:#6b6a73;--line:#e6e4de;--accent:#17161a;--good:#1f9d63;--warn:#d98a0b;--bad:#d64545;--blue:#2f5bd8}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 Inter,system-ui,sans-serif}
+button,input,select{font:inherit}
+.hide{display:none!important}
+header{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+.hwrap{max-width:1280px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.logo{font-weight:700;font-size:16px;letter-spacing:.02em}
+nav{display:flex;gap:4px;flex:1}
+nav button{border:0;background:none;padding:8px 14px;border-radius:9px;cursor:pointer;color:var(--mute);font-weight:600}
+nav button.on{background:var(--ink);color:#fff}
+main{max-width:1280px;margin:0 auto;padding:20px}
+.btn{border:1px solid var(--line);background:var(--card);padding:9px 14px;border-radius:10px;cursor:pointer;font-weight:600}
+.btn:hover{border-color:#bbb}.btn.primary{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.sm{padding:5px 10px;font-size:12px;border-radius:8px}
+.btn.danger{color:var(--bad)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px}
+.kpi b{display:block;font-size:26px;letter-spacing:-.02em}.kpi span{color:var(--mute);font-size:12px}
+.tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.tools input,.tools select,.field input,.field select{border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:#fff}
+.tools .grow{flex:1;min-width:160px}
+.tablewrap{overflow:auto;border:1px solid var(--line);border-radius:14px;background:var(--card)}
+table{border-collapse:collapse;width:100%;min-width:1000px}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle;white-space:nowrap}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--mute);background:#faf9f6;position:sticky;top:0;cursor:pointer;user-select:none}
+tr:last-child td{border-bottom:0}
+td img{width:48px;height:64px;object-fit:cover;border-radius:8px;display:block;cursor:zoom-in;background:#eee}
+td input.cell{border:1px solid transparent;background:transparent;padding:5px 6px;border-radius:7px;width:120px}
+td input.cell:hover{border-color:var(--line)}td input.cell:focus{border-color:var(--blue);background:#fff;outline:0}
+.pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11px;font-weight:700}
+.p-good{background:#e2f5ec;color:var(--good)}.p-warn{background:#fdf1d9;color:var(--warn)}.p-bad{background:#fbe5e5;color:var(--bad)}.p-mute{background:#eeede9;color:var(--mute)}.p-blue{background:#e4ebfc;color:var(--blue)}
+.meter{width:90px;height:8px;background:#eee;border-radius:9px;overflow:hidden;display:inline-block;vertical-align:middle;margin-right:6px}
+.meter i{display:block;height:100%;background:var(--good)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:860px){.grid2{grid-template-columns:1fr}}
+.top10 .row{display:flex;align-items:center;gap:10px;margin:7px 0}
+.top10 .row img{width:30px;height:40px;object-fit:cover;border-radius:6px}
+.top10 .row .nm{width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.top10 .row .bar{flex:1;height:10px;background:#eee;border-radius:9px;overflow:hidden}
+.top10 .row .bar i{display:block;height:100%;background:linear-gradient(90deg,#2f5bd8,#1f9d63)}
+.drop{border:2px dashed #cfcdc5;border-radius:16px;padding:34px;text-align:center;color:var(--mute);cursor:pointer;background:#fcfbf9}
+.drop.over{border-color:var(--blue);background:#f1f5ff}
+.ulist{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;margin:16px 0}
+.uitem{border:1px solid var(--line);border-radius:12px;padding:10px;background:#fff;display:flex;flex-direction:column;gap:6px;position:relative}
+.uitem img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:8px}
+.uitem input{border:1px solid var(--line);border-radius:8px;padding:6px 8px;width:100%}
+.uitem .x{position:absolute;top:14px;right:14px;background:rgba(0,0,0,.6);color:#fff;border:0;border-radius:50%;width:24px;height:24px;cursor:pointer}
+.uitem .st{font-size:11px;color:var(--mute)}
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}.field label{font-weight:600;font-size:12px}
+.field small{color:var(--mute)}
+.login{max-width:360px;margin:12vh auto;display:flex;flex-direction:column;gap:12px}
+.login input{border:1px solid var(--line);border-radius:10px;padding:12px}
+.msg{padding:10px 14px;border-radius:10px;background:#fbe5e5;color:var(--bad);font-size:13px}
+.msg.ok{background:#e2f5ec;color:var(--good)}
+#lightbox{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:99;cursor:zoom-out}
+#lightbox.on{display:flex}#lightbox img{max-height:94vh;max-width:94vw;border-radius:10px}
+.help{color:var(--mute);font-size:12px;margin:6px 0 0}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginView" class="login hide card">
+  <div class="logo">Design Vote - Admin</div>
+  <div id="cfgWarn" class="msg hide">Add your Supabase URL and key in <b>config.js</b> first.</div>
+  <input id="email" type="email" placeholder="Admin email" autocomplete="username">
+  <input id="password" type="password" placeholder="Password" autocomplete="current-password">
+  <div id="loginErr" class="msg hide"></div>
+  <button class="btn primary" id="loginBtn">Sign in</button>
+</div>
+
+<!-- APP -->
+<div id="appView" class="hide">
+<header><div class="hwrap">
+  <div class="logo">Design Vote</div>
+  <nav>
+    <button data-tab="results" class="on">Results</button>
+    <button data-tab="upload">Upload designs</button>
+    <button data-tab="leads">Leads</button>
+    <button data-tab="settings">Settings</button>
+  </nav>
+  <a class="btn sm" href="index.html" target="_blank" style="text-decoration:none;color:inherit">Open customer page</a>
+  <button class="btn sm" id="logoutBtn">Sign out</button>
+</div></header>
+
+<main>
+<!-- RESULTS -->
+<section id="tab-results">
+  <div class="kpis" id="kpis"></div>
+  <div class="grid2" style="margin-bottom:16px">
+    <div class="card top10"><b>Top 10 right now</b><div class="help">Ranked by confidence score (needs enough votes to be trusted)</div><div id="top10"></div></div>
+    <div class="card"><b>How to read this</b>
+      <p class="help" style="font-size:13px;line-height:1.6">
+      <b>Love %</b> = share of voters who loved or must-have'd it.<br>
+      <b>Score</b> = a cautious estimate of true love % (a design with 4/4 loves ranks below one with 80/100 until it gets more votes).<br>
+      <b>Verdict</b>: <span class="pill p-good">Produce</span> strong and proven &middot; <span class="pill p-blue">Promising</span> good, collecting votes &middot; <span class="pill p-warn">Mixed</span> &middot; <span class="pill p-bad">Weak</span> &middot; <span class="pill p-mute">Needs votes</span><br>
+      Designs customers clearly reject are <b>hidden automatically</b> (see Settings). Anything you set by hand is never overridden.</p>
+    </div>
+  </div>
+  <div class="tools">
+    <input id="q" class="grow" placeholder="Search code / title / category">
+    <select id="fStatus"><option value="">All statuses</option><option>active</option><option>hidden</option><option>approved</option><option>in_production</option><option>rejected</option></select>
+    <select id="fCat"><option value="">All categories</option></select>
+    <select id="fVerdict"><option value="">All verdicts</option><option>Produce</option><option>Promising</option><option>Mixed</option><option>Weak</option><option>Needs votes</option></select>
+    <button class="btn" id="refreshBtn">Refresh</button>
+    <button class="btn primary" id="exportBtn">Export CSV</button>
+  </div>
+  <div class="tools" id="bulkBar" style="display:none">
+    <b id="selCount"></b>
+    <select id="bulkStatus"><option value="">Set status for selected...</option><option value="approved">approved (go to production)</option><option value="in_production">in_production</option><option value="rejected">rejected</option><option value="hidden">hidden</option><option value="active">active (show to customers)</option></select>
+    <button class="btn" id="bulkApply">Apply</button>
+  </div>
+  <div class="tablewrap"><table id="tbl">
+    <thead><tr>
+      <th style="cursor:default"><input type="checkbox" id="selAll"></th>
+      <th style="cursor:default">Photo</th>
+      <th data-k="code">Code</th><th data-k="title">Title</th><th data-k="category">Category</th>
+      <th data-k="status">Status</th><th data-k="votes">Votes</th><th data-k="lovePct">Love %</th>
+      <th data-k="mustPct">Must %</th><th data-k="passPct">Pass %</th><th data-k="score">Score</th><th data-k="verdict">Verdict</th>
+      <th style="cursor:default"></th>
+    </tr></thead><tbody id="tbody"></tbody></table></div>
+  <p class="help" id="tblNote"></p>
+</section>
+
+<!-- UPLOAD -->
+<section id="tab-upload" class="hide">
+  <div class="card">
+    <b>Add new designs</b>
+    <p class="help">Drop as many pictures as you like. Photos are shrunk automatically (fast loading on phones). Customers see them immediately as "active".</p>
+    <div class="tools" style="margin-top:12px">
+      <div class="field" style="margin:0"><label>Category for this batch (optional)</label><input id="batchCat" placeholder="e.g. Lawn, Kurta, Abaya"></div>
+    </div>
+    <div class="drop" id="drop">Drag &amp; drop design pictures here, or click to choose<input id="fileIn" type="file" accept="image/*" multiple hidden></div>
+    <div class="ulist" id="ulist"></div>
+    <div class="tools"><button class="btn primary" id="uploadBtn" disabled>Upload all</button><span id="uStatus" class="help"></span></div>
+  </div>
+</section>
+
+<!-- LEADS -->
+<section id="tab-leads" class="hide">
+  <div class="tools"><b id="leadCount"></b><span style="flex:1"></span><button class="btn primary" id="leadExport">Export leads CSV</button></div>
+  <div class="tablewrap"><table style="min-width:600px"><thead><tr><th style="cursor:default">Name</th><th style="cursor:default">WhatsApp / email</th><th style="cursor:default">Reward code</th><th style="cursor:default">Claimed</th></tr></thead><tbody id="leadBody"></tbody></table></div>
+  <p class="help">These are customers who rated enough designs to claim the reward. Use them to announce launches and send the winning designs first.</p>
+</section>
+
+<!-- SETTINGS -->
+<section id="tab-settings" class="hide">
+  <div class="card" style="max-width:560px">
+    <b>Portal rules</b>
+    <p class="help">Changes apply instantly to the customer page.</p><br>
+    <div class="field"><label>Minimum votes before a design can be auto-hidden</label><input id="sMin" type="number" min="5" step="1"><small>Protects against one unlucky early batch of votes. 30 is a sensible start.</small></div>
+    <div class="field"><label>Auto-hide when this % of voters pass</label><input id="sRate" type="number" min="50" max="100" step="1"><small>70 = hide once at least 70% of voters swiped it away.</small></div>
+    <hr style="border:0;border-top:1px solid var(--line);margin:18px 0">
+    <b>Thank-you reward</b><br><br>
+    <div class="field"><label><input type="checkbox" id="sRewardOn"> Reward enabled</label></div>
+    <div class="field"><label>Discount code (create the same code in Shopify)</label><input id="sCode"></div>
+    <div class="field"><label>Reward text shown to customer</label><input id="sText"></div>
+    <div class="field"><label>Designs a customer must rate to unlock it</label><input id="sRMin" type="number" min="1" step="1"></div>
+    <button class="btn primary" id="saveSettings">Save settings</button>
+    <div id="sMsg" class="msg ok hide" style="margin-top:12px"></div>
+  </div>
+</section>
+</main>
+</div>
+
+<div id="lightbox"><img alt=""></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script>
+(() => {
+'use strict';
+const cfg = window.APP_CONFIG || {};
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const CONFIGURED = cfg.SUPABASE_URL && !/YOUR_/.test(cfg.SUPABASE_URL);
+const imgUrl = p => `${cfg.SUPABASE_URL}/storage/v1/object/public/designs/${encodeURI(p)}`;
+
+let sb, designs = [], settings = {}, sortKey = 'score', sortDir = -1, selected = new Set(), files = [];
+
+/* ------------------------------------------------ auth */
+function showLogin(msg){ $('#appView').classList.add('hide'); $('#loginView').classList.remove('hide');
+  if (!CONFIGURED) $('#cfgWarn').classList.remove('hide');
+  if (msg){ const e = $('#loginErr'); e.textContent = msg; e.classList.remove('hide'); } }
+async function enter(){
+  const { data, error } = await sb.from('admin_users').select('email').limit(1);
+  if (error || !data || !data.length){ await sb.auth.signOut(); return showLogin('This account is not registered as an admin.'); }
+  $('#loginView').classList.add('hide'); $('#appView').classList.remove('hide');
+  await Promise.all([loadSettings(), loadDesigns()]); renderAll(); loadLeads();
+}
+if (!CONFIGURED){ showLogin(); }
+else {
+  sb = supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY);
+  sb.auth.getSession().then(({ data }) => data.session ? enter() : showLogin());
+}
+$('#loginBtn').onclick = async () => {
+  if (!CONFIGURED) return;
+  $('#loginErr').classList.add('hide');
+  const { error } = await sb.auth.signInWithPassword({ email: $('#email').value.trim(), password: $('#password').value });
+  if (error) return showLogin(error.message);
+  enter();
+};
+$('#password').addEventListener('keydown', e => { if (e.key === 'Enter') $('#loginBtn').click(); });
+$('#logoutBtn').onclick = async () => { await sb.auth.signOut(); location.reload(); };
+
+$$('nav button').forEach(b => b.onclick = () => {
+  $$('nav button').forEach(x => x.classList.toggle('on', x === b));
+  ['results','upload','leads','settings'].forEach(t => $('#tab-' + t).classList.toggle('hide', t !== b.dataset.tab));
+});
+
+/* ------------------------------------------------ data */
+async function loadSettings(){
+  const { data } = await sb.from('settings').select('*').eq('id', 1).single(); settings = data || {};
+  $('#sMin').value = settings.min_votes_to_hide ?? 30; $('#sRate').value = Math.round((settings.hide_pass_rate ?? .7) * 100);
+  $('#sRewardOn').checked = !!settings.reward_enabled; $('#sCode').value = settings.reward_code || '';
+  $('#sText').value = settings.reward_text || ''; $('#sRMin').value = settings.reward_min_votes ?? 15;
+}
+async function loadDesigns(){
+  const { data, error } = await sb.from('designs').select('*').order('created_at', { ascending: false }).limit(2000);
+  if (error){ alert('Could not load designs: ' + error.message); return; }
+  designs = data.map(enrich);
+}
+const wilson = (pos, n) => { if (!n) return 0; const z = 1.96, p = pos / n;
+  return (p + z*z/(2*n) - z*Math.sqrt((p*(1-p) + z*z/(4*n))/n)) / (1 + z*z/n); };
+function enrich(d){
+  const votes = d.love_count + d.must_count + d.pass_count, pos = d.love_count + d.must_count;
+  const minV = settings.min_votes_to_hide ?? 30;
+  const o = { ...d, votes, lovePct: votes ? pos/votes : 0, mustPct: votes ? d.must_count/votes : 0, passPct: votes ? d.pass_count/votes : 0,
+    score: wilson(pos, votes) };
+  o.verdict = votes < Math.max(10, minV / 2) ? 'Needs votes'
+    : o.score >= .6 ? 'Produce' : o.score >= .45 ? 'Promising' : o.score >= .3 ? 'Mixed' : 'Weak';
+  return o;
+}
+const pct = x => (x * 100).toFixed(0) + '%';
+const vClass = v => ({ Produce:'p-good', Promising:'p-blue', Mixed:'p-warn', Weak:'p-bad', 'Needs votes':'p-mute' }[v]);
+const sClass = s => ({ active:'p-good', hidden:'p-bad', approved:'p-blue', in_production:'p-blue', rejected:'p-mute' }[s]);
+
+/* ------------------------------------------------ results */
+async function renderAll(){
+  designs = designs.map(enrich);
+  const cats = [...new Set(designs.map(d => d.category).filter(Boolean))].sort();
+  const cur = $('#fCat').value;
+  $('#fCat').innerHTML = '<option value="">All categories</option>' + cats.map(c => `<option>${esc(c)}</option>`).join(''); $('#fCat').value = cur;
+  const totalVotes = designs.reduce((a, d) => a + d.votes, 0);
+  const { count: voterCount } = await sb.from('voters').select('id', { count: 'exact', head: true });
+  const { count: leadCount } = await sb.from('voters').select('id', { count: 'exact', head: true }).not('contact', 'is', null);
+  const by = s => designs.filter(d => d.status === s).length;
+  $('#kpis').innerHTML = [
+    ['Designs', designs.length], ['Live for customers', by('active')], ['Auto/manual hidden', by('hidden')],
+    ['Approved / in production', by('approved') + by('in_production')], ['Total votes', totalVotes],
+    ['Voters', voterCount ?? 0], ['Leads (contacts)', leadCount ?? 0]
+  ].map(([l, v]) => `<div class="card kpi"><b>${v}</b><span>${l}</span></div>`).join('');
+  const top = [...designs].filter(d => d.votes > 0).sort((a, b) => b.score - a.score).slice(0, 10);
+  $('#top10').innerHTML = top.length ? top.map(d => `<div class="row"><img src="${esc(imgUrl(d.image_path))}" alt="">
+    <div class="nm">${esc(d.code || d.title || '-')}</div><div class="bar"><i style="width:${Math.round(d.score*100)}%"></i></div>
+    <div style="width:42px;text-align:right">${pct(d.lovePct)}</div></div>`).join('') : '<p class="help">No votes yet.</p>';
+  renderTable();
+}
+function filtered(){
+  const q = $('#q').value.toLowerCase(), fs = $('#fStatus').value, fc = $('#fCat').value, fv = $('#fVerdict').value;
+  let rows = designs.filter(d => (!fs || d.status === fs) && (!fc || d.category === fc) && (!fv || d.verdict === fv) &&
+    (!q || [d.code, d.title, d.category].some(x => (x || '').toLowerCase().includes(q))));
+  rows.sort((a, b) => { const x = a[sortKey], y = b[sortKey];
+    return (typeof x === 'string' ? (x || '').localeCompare(y || '') : (x - y)) * sortDir; });
+  return rows;
+}
+function renderTable(){
+  const rows = filtered();
+  $('#tbody').innerHTML = rows.map(d => `<tr data-id="${d.id}">
+    <td><input type="checkbox" class="sel" ${selected.has(d.id) ? 'checked' : ''}></td>
+    <td><img src="${esc(imgUrl(d.image_path))}" data-zoom="${esc(imgUrl(d.image_path))}" alt=""></td>
+    <td><input class="cell" data-f="code" value="${esc(d.code)}" placeholder="code"></td>
+    <td><input class="cell" data-f="title" value="${esc(d.title)}" placeholder="title"></td>
+    <td><input class="cell" data-f="category" value="${esc(d.category)}" placeholder="category" style="width:100px"></td>
+    <td><span class="pill ${sClass(d.status)}">${d.status}${d.hidden_reason === 'auto' ? ' (auto)' : ''}</span></td>
+    <td>${d.votes}</td>
+    <td><span class="meter"><i style="width:${Math.round(d.lovePct*100)}%"></i></span>${pct(d.lovePct)}</td>
+    <td>${pct(d.mustPct)}</td><td>${pct(d.passPct)}</td><td><b>${(d.score*100).toFixed(0)}</b></td>
+    <td><span class="pill ${vClass(d.verdict)}">${d.verdict}</span></td>
+    <td><select class="stSel"><option value="">Set status...</option><option value="active">show to customers</option><option value="hidden">hide</option>
+      <option value="approved">approve for production</option><option value="in_production">in production</option><option value="rejected">reject</option></select>
+      <button class="btn sm danger del">Delete</button></td></tr>`).join('');
+  $('#tblNote').textContent = rows.length + ' of ' + designs.length + ' designs shown. Click column headers to sort.';
+  updateBulk();
+}
+$$('th[data-k]').forEach(th => th.onclick = () => { const k = th.dataset.k; if (sortKey === k) sortDir *= -1; else { sortKey = k; sortDir = -1; } renderTable(); });
+['q','fStatus','fCat','fVerdict'].forEach(id => $('#' + id).addEventListener('input', renderTable));
+$('#refreshBtn').onclick = async () => { await loadSettings(); await loadDesigns(); renderAll(); };
+
+$('#tbody').addEventListener('click', async e => {
+  const tr = e.target.closest('tr'); if (!tr) return; const id = tr.dataset.id;
+  if (e.target.dataset.zoom){ $('#lightbox img').src = e.target.dataset.zoom; $('#lightbox').classList.add('on'); }
+  if (e.target.classList.contains('sel')){ e.target.checked ? selected.add(id) : selected.delete(id); updateBulk(); }
+  if (e.target.classList.contains('del')) await deleteDesign(id);
+});
+$('#tbody').addEventListener('change', async e => {
+  const tr = e.target.closest('tr'); if (!tr) return; const id = tr.dataset.id;
+  if (e.target.classList.contains('stSel') && e.target.value) await setStatus([id], e.target.value);
+  if (e.target.dataset.f){ const { error } = await sb.from('designs').update({ [e.target.dataset.f]: e.target.value.trim() || null }).eq('id', id);
+    if (error) alert(error.message); else { const d = designs.find(x => x.id === id); d[e.target.dataset.f] = e.target.value.trim() || null; } }
+});
+$('#lightbox').onclick = () => $('#lightbox').classList.remove('on');
+$('#selAll').onchange = e => { filtered().forEach(d => e.target.checked ? selected.add(d.id) : selected.delete(d.id)); renderTable(); };
+function updateBulk(){ $('#bulkBar').style.display = selected.size ? 'flex' : 'none'; $('#selCount').textContent = selected.size + ' selected'; }
+$('#bulkApply').onclick = async () => { const v = $('#bulkStatus').value; if (!v || !selected.size) return;
+  await setStatus([...selected], v); selected.clear(); $('#bulkStatus').value = ''; };
+
+async function setStatus(ids, status){
+  // a manual decision locks the design so the auto-hide rule never fights you
+  const patch = { status, locked: true, hidden_reason: status === 'hidden' ? 'manual' : null };
+  const { error } = await sb.from('designs').update(patch).in('id', ids);
+  if (error) return alert(error.message);
+  designs.forEach(d => { if (ids.includes(d.id)) Object.assign(d, patch); }); renderAll();
+}
+async function deleteDesign(id){
+  const d = designs.find(x => x.id === id);
+  if (!confirm(`Delete ${d.code || d.title || 'this design'} and all its votes? This cannot be undone.\n\n(Tip: use "reject" or "hide" to keep the data.)`)) return;
+  await sb.storage.from('designs').remove([d.image_path]);
+  const { error } = await sb.from('designs').delete().eq('id', id);
+  if (error) return alert(error.message);
+  designs = designs.filter(x => x.id !== id); selected.delete(id); renderAll();
+}
+
+/* ------------------------------------------------ export */
+function csv(rows){ return '﻿' + rows.map(r => r.map(v => { v = v == null ? '' : String(v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }).join(',')).join('\n'); }
+function download(name, text){ const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type: 'text/csv' })); a.download = name; a.click(); URL.revokeObjectURL(a.href); }
+$('#exportBtn').onclick = () => {
+  const rows = [['Rank','Code','Title','Category','Status','Total votes','Loves','Must-haves','Passes','Love %','Must %','Pass %','Confidence score','Verdict','Image URL','Added']];
+  filtered().sort((a, b) => b.score - a.score).forEach((d, i) => rows.push([i + 1, d.code, d.title, d.category, d.status, d.votes, d.love_count, d.must_count, d.pass_count,
+    (d.lovePct*100).toFixed(1), (d.mustPct*100).toFixed(1), (d.passPct*100).toFixed(1), (d.score*100).toFixed(1), d.verdict, imgUrl(d.image_path), d.created_at.slice(0, 10)]));
+  download('design-votes-' + new Date().toISOString().slice(0, 10) + '.csv', csv(rows));
+};
+
+/* ------------------------------------------------ leads */
+let leads = [];
+async function loadLeads(){
+  const { data } = await sb.from('voters').select('name,contact,reward_code,claimed_at').not('contact', 'is', null).order('claimed_at', { ascending: false }).limit(5000);
+  leads = data || []; $('#leadCount').textContent = leads.length + ' leads';
+  $('#leadBody').innerHTML = leads.map(l => `<tr><td>${esc(l.name)}</td><td>${esc(l.contact)}</td><td>${esc(l.reward_code)}</td><td>${esc((l.claimed_at || '').slice(0, 16).replace('T', ' '))}</td></tr>`).join('');
+}
+$('#leadExport').onclick = () => download('leads-' + new Date().toISOString().slice(0, 10) + '.csv',
+  csv([['Name','WhatsApp / email','Reward code','Claimed at'], ...leads.map(l => [l.name, l.contact, l.reward_code, l.claimed_at])]));
+
+/* ------------------------------------------------ settings */
+$('#saveSettings').onclick = async () => {
+  const patch = {
+    min_votes_to_hide: Math.max(5, +$('#sMin').value || 30),
+    hide_pass_rate: Math.min(1, Math.max(.5, (+$('#sRate').value || 70) / 100)),
+    reward_enabled: $('#sRewardOn').checked, reward_code: $('#sCode').value.trim() || 'VOTE10',
+    reward_text: $('#sText').value.trim() || '10% off your next order', reward_min_votes: Math.max(1, +$('#sRMin').value || 15)
+  };
+  const { error } = await sb.from('settings').update(patch).eq('id', 1);
+  const m = $('#sMsg'); m.classList.remove('hide'); m.className = 'msg ' + (error ? '' : 'ok'); m.textContent = error ? error.message : 'Saved.';
+  if (!error){ settings = { ...settings, ...patch }; renderAll(); }
+};
+
+/* ------------------------------------------------ upload */
+const drop = $('#drop'), fileIn = $('#fileIn');
+drop.onclick = () => fileIn.click();
+fileIn.onchange = () => addFiles(fileIn.files);
+['dragover','dragenter'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
+['dragleave','drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('over'); }));
+drop.addEventListener('drop', e => addFiles(e.dataTransfer.files));
+function addFiles(list){
+  [...list].filter(f => f.type.startsWith('image/')).forEach(f => files.push({ file: f, code: f.name.replace(/\.[^.]+$/, ''), title: '', url: URL.createObjectURL(f), state: '' }));
+  renderUploads();
+}
+function renderUploads(){
+  $('#ulist').innerHTML = files.map((f, i) => `<div class="uitem" data-i="${i}"><button class="x" title="Remove">&times;</button>
+    <img src="${f.url}" alt=""><input data-f="code" value="${esc(f.code)}" placeholder="Article code"><input data-f="title" value="${esc(f.title)}" placeholder="Title (shown to customers, optional)">
+    <div class="st">${esc(f.state)}</div></div>`).join('');
+  $('#uploadBtn').disabled = !files.some(f => f.state !== 'Uploaded');
+}
+$('#ulist').addEventListener('input', e => { const it = e.target.closest('.uitem'); if (it && e.target.dataset.f) files[+it.dataset.i][e.target.dataset.f] = e.target.value; });
+$('#ulist').addEventListener('click', e => { if (e.target.classList.contains('x')){ files.splice(+e.target.closest('.uitem').dataset.i, 1); renderUploads(); } });
+
+async function shrink(file, max = 1400){
+  const bmp = await createImageBitmap(file); const s = Math.min(1, max / Math.max(bmp.width, bmp.height));
+  const c = document.createElement('canvas'); c.width = Math.round(bmp.width * s); c.height = Math.round(bmp.height * s);
+  c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+  return new Promise(r => c.toBlob(r, 'image/jpeg', .86));
+}
+$('#uploadBtn').onclick = async () => {
+  $('#uploadBtn').disabled = true; let ok = 0, fail = 0; const cat = $('#batchCat').value.trim() || null;
+  for (const f of files){
+    if (f.state === 'Uploaded') continue;
+    try {
+      f.state = 'Uploading...'; renderUploads();
+      const blob = await shrink(f.file); const path = (crypto.randomUUID ? crypto.randomUUID() : Date.now() + '-' + Math.random().toString(36).slice(2)) + '.jpg';
+      const up = await sb.storage.from('designs').upload(path, blob, { contentType: 'image/jpeg', cacheControl: '31536000' });
+      if (up.error) throw up.error;
+      const ins = await sb.from('designs').insert({ code: f.code.trim() || null, title: f.title.trim() || null, category: cat, image_path: path });
+      if (ins.error){ await sb.storage.from('designs').remove([path]); throw ins.error; }
+      f.state = 'Uploaded'; ok++;
+    } catch (err) { f.state = 'Failed: ' + (err.message || err); fail++; }
+    $('#uStatus').textContent = `${ok} uploaded${fail ? ', ' + fail + ' failed' : ''} of ${files.length}`; renderUploads();
+  }
+  files = files.filter(f => f.state !== 'Uploaded'); renderUploads();
+  $('#uStatus').textContent = `Done: ${ok} uploaded${fail ? ', ' + fail + ' failed (kept in list - fix and retry)' : ''}.`;
+  await loadDesigns(); renderAll();
+};
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,535 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Pick our next drop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d0d0f; --card:#18181c; --ink:#f5f2ec; --mute:#9a9aa3; --line:#2a2a30;
+  --love:#ff4d6d; --pass:#c9ccd3; --must:#ffc247; --accent:#e9d3a2;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--ink);
+  font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overscroll-behavior:none}
+h1,h2,.serif{font-family:"Playfair Display",Georgia,serif}
+#app{max-width:480px;margin:0 auto;height:100dvh;display:flex;flex-direction:column;
+  padding:max(env(safe-area-inset-top),10px) 16px calc(env(safe-area-inset-bottom) + 14px)}
+.screen{display:none;flex:1;flex-direction:column;min-height:0}
+body[data-screen="welcome"] #welcome,
+body[data-screen="deck"] #deck,
+body[data-screen="done"] #done{display:flex}
+
+/* ---------- welcome / done ---------- */
+.center{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:18px;padding:10px 6px}
+.brand{letter-spacing:.35em;text-transform:uppercase;font-size:12px;color:var(--accent);font-weight:600}
+h1{font-size:38px;line-height:1.1;margin:0}
+p.lead{color:var(--mute);font-size:16px;line-height:1.5;margin:0;max-width:340px}
+.howto{display:flex;gap:10px;margin-top:6px}
+.howto div{background:#17171b;border:1px solid var(--line);border-radius:14px;padding:12px 10px;font-size:12px;color:var(--mute);width:100px}
+.howto b{display:block;font-size:22px;margin-bottom:4px;color:var(--ink)}
+.gift{display:inline-flex;gap:8px;align-items:center;background:rgba(233,211,162,.1);color:var(--accent);
+  border:1px solid rgba(233,211,162,.3);border-radius:999px;padding:8px 14px;font-size:13px;font-weight:600}
+.btn{appearance:none;border:0;border-radius:16px;padding:16px 28px;font:600 16px Inter,sans-serif;cursor:pointer;
+  background:var(--accent);color:#1a1405;transition:transform .12s}
+.btn:active{transform:scale(.97)}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.wide{width:100%}
+.stack{display:flex;flex-direction:column;gap:10px;width:100%;max-width:340px}
+
+/* ---------- deck ---------- */
+.top{display:flex;align-items:center;gap:12px;padding:6px 2px}
+.top .brand{font-size:11px;flex:none}
+.bar{flex:1;height:6px;background:#222228;border-radius:9px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--love));border-radius:9px;transition:width .35s}
+.count{font-size:12px;color:var(--mute);font-variant-numeric:tabular-nums;min-width:48px;text-align:right}
+#stage{position:relative;flex:1;min-height:0;margin:8px 0 16px}
+.card{position:absolute;inset:0;border-radius:26px;overflow:hidden;background:
+  linear-gradient(110deg,#18181c 30%,#222228 50%,#18181c 70%);background-size:200% 100%;animation:sh 1.4s linear infinite;
+  box-shadow:0 20px 50px rgba(0,0,0,.55);touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab;will-change:transform}
+@keyframes sh{to{background-position:-200% 0}}
+.card img{width:100%;height:100%;object-fit:cover;pointer-events:none;display:block}
+.cap{position:absolute;left:0;right:0;bottom:0;padding:48px 18px 16px;background:linear-gradient(transparent,rgba(0,0,0,.78));pointer-events:none}
+.cap b{display:block;font-size:18px;font-family:"Playfair Display",serif}
+.cap span{font-size:12px;color:#d0d0d6;letter-spacing:.08em;text-transform:uppercase}
+.stamp{position:absolute;padding:6px 14px;border:4px solid;border-radius:12px;font-weight:800;font-size:28px;
+  letter-spacing:2px;opacity:0;pointer-events:none;background:rgba(0,0,0,.25);backdrop-filter:blur(2px)}
+.stamp.love{top:28px;left:22px;color:var(--love);transform:rotate(-12deg)}
+.stamp.pass{top:28px;right:22px;color:var(--pass);transform:rotate(12deg)}
+.stamp.must{top:28px;left:50%;margin-left:-70px;color:var(--must);transform:rotate(-4deg);font-size:22px;width:140px;text-align:center}
+.zoomhint{position:absolute;right:12px;top:12px;font-size:11px;background:rgba(0,0,0,.45);color:#ddd;border-radius:999px;padding:4px 9px;pointer-events:none}
+.controls{display:flex;justify-content:center;align-items:center;gap:22px}
+.rb{appearance:none;border:0;border-radius:50%;display:grid;place-items:center;cursor:pointer;background:#1a1a1f;
+  box-shadow:0 8px 20px rgba(0,0,0,.4);transition:transform .12s;color:var(--ink)}
+.rb:active{transform:scale(.9)}
+.rb.big{width:68px;height:68px;font-size:30px}.rb.small{width:54px;height:54px;font-size:24px}
+.rb.love{color:var(--love);border:2px solid rgba(255,77,109,.5)}
+.rb.pass{color:var(--pass);border:2px solid rgba(201,204,211,.35)}
+.rb.must{color:var(--must);border:2px solid rgba(255,194,71,.5)}
+.legend{display:flex;justify-content:center;gap:34px;font-size:11px;color:var(--mute);margin-top:8px}
+.giftpill{display:none;margin:2px auto 0;cursor:pointer;border:0}
+.giftpill.show{display:inline-flex}
+
+/* ---------- toast / overlays ---------- */
+#toast{position:fixed;left:50%;top:max(env(safe-area-inset-top),14px);transform:translate(-50%,-90px);background:#f5f2ec;color:#16130a;
+  padding:11px 18px;border-radius:999px;font-weight:600;font-size:14px;transition:transform .35s cubic-bezier(.2,.9,.3,1.2);z-index:50;
+  box-shadow:0 10px 30px rgba(0,0,0,.5);white-space:nowrap;max-width:92vw;overflow:hidden;text-overflow:ellipsis}
+#toast.on{transform:translate(-50%,0)}
+#fx{position:fixed;inset:0;pointer-events:none;z-index:40}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);display:none;z-index:60;align-items:center;justify-content:center;padding:16px}
+.overlay.on{display:flex}
+.sheet{background:#17171b;border:1px solid var(--line);border-radius:22px;padding:24px;max-width:380px;width:100%;display:flex;flex-direction:column;gap:12px}
+.sheet h2{margin:0;font-size:24px}
+.sheet p{margin:0;color:var(--mute);font-size:14px;line-height:1.45}
+.sheet input{background:#0f0f12;border:1px solid var(--line);border-radius:12px;padding:14px;color:var(--ink);font:500 16px Inter,sans-serif;width:100%}
+.sheet input:focus{outline:2px solid var(--accent);border-color:transparent}
+.err{color:#ff8a9b;font-size:13px;min-height:16px}
+.code{font:700 28px/1 "Courier New",monospace;letter-spacing:.14em;text-align:center;border:2px dashed var(--accent);color:var(--accent);
+  border-radius:14px;padding:18px 10px;background:rgba(233,211,162,.07)}
+#zoom img{max-width:100%;max-height:92dvh;border-radius:14px;object-fit:contain}
+.statrow{display:flex;gap:12px}
+.statrow div{flex:1;background:#17171b;border:1px solid var(--line);border-radius:16px;padding:14px}
+.statrow b{display:block;font-size:26px}
+.statrow span{font-size:12px;color:var(--mute)}
+</style>
+</head>
+<body data-screen="welcome">
+<div id="app">
+
+  <!-- WELCOME -->
+  <section class="screen" id="welcome">
+    <div class="center">
+      <div class="brand" id="brandW"></div>
+      <h1>Help us pick<br>our next collection</h1>
+      <p class="lead">Swipe right on what you'd love to wear. Swipe left on what you wouldn't. Your taste decides what we make.</p>
+      <div class="howto">
+        <div><b>&larr;</b>Not for me</div>
+        <div><b>&uarr;</b>Must have!</div>
+        <div><b>&rarr;</b>Love it</div>
+      </div>
+      <div class="gift" id="giftW" style="display:none"></div>
+      <div class="stack"><button class="btn wide" id="startBtn">Start swiping</button></div>
+      <p class="lead" id="loadNote" style="font-size:13px"></p>
+    </div>
+  </section>
+
+  <!-- DECK -->
+  <section class="screen" id="deck">
+    <div class="top">
+      <div class="brand" id="brandD"></div>
+      <div class="bar"><i id="barFill"></i></div>
+      <div class="count" id="count"></div>
+    </div>
+    <button class="gift giftpill" id="giftPill">🎁 Reward unlocked &mdash; tap to claim</button>
+    <div id="stage"></div>
+    <div class="controls">
+      <button class="rb big pass" id="bPass" aria-label="Not for me">✕</button>
+      <button class="rb small must" id="bMust" aria-label="Must have">★</button>
+      <button class="rb big love" id="bLove" aria-label="Love it">♥</button>
+    </div>
+    <div class="legend"><span>Not for me</span><span>Must have</span><span>Love it</span></div>
+  </section>
+
+  <!-- DONE -->
+  <section class="screen" id="done">
+    <div class="center">
+      <div class="brand" id="brandX"></div>
+      <h1 id="doneTitle">You've seen them all!</h1>
+      <p class="lead" id="doneText"></p>
+      <div class="statrow" id="myStats"></div>
+      <div class="stack">
+        <button class="btn wide" id="claimBtn" style="display:none">🎁 Claim my reward</button>
+        <a class="btn wide" id="shopBtn" style="display:none;text-align:center;text-decoration:none" target="_blank" rel="noopener">Shop now</a>
+        <button class="btn ghost wide" id="shareBtn" style="display:none">Share with a friend</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div id="toast"></div>
+<canvas id="fx"></canvas>
+
+<!-- claim reward -->
+<div class="overlay" id="claimOv">
+  <div class="sheet" id="claimForm">
+    <h2>Your thank-you gift 🎁</h2>
+    <p id="claimLead">Enter your WhatsApp number and we'll unlock your gift. We'll also tell you the moment the designs you loved go live.</p>
+    <input id="cName" placeholder="Your name (optional)" autocomplete="name">
+    <input id="cContact" placeholder="WhatsApp number or email" autocomplete="tel" inputmode="tel">
+    <div class="err" id="cErr"></div>
+    <button class="btn wide" id="cSubmit">Unlock my gift</button>
+    <button class="btn ghost wide" id="cCancel">Not now</button>
+  </div>
+  <div class="sheet" id="claimDone" style="display:none">
+    <h2>Unlocked! 🎉</h2>
+    <p id="rewardText"></p>
+    <div class="code" id="rewardCode"></div>
+    <button class="btn wide" id="copyBtn">Copy code</button>
+    <button class="btn ghost wide" id="closeClaim">Back to swiping</button>
+  </div>
+</div>
+
+<!-- zoom -->
+<div class="overlay" id="zoom"><img alt=""></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script>
+(() => {
+'use strict';
+const cfg = window.APP_CONFIG || {};
+const BRAND = cfg.BRAND_NAME || 'Design Vote';
+const DEMO = !cfg.SUPABASE_URL || /YOUR_/.test(cfg.SUPABASE_URL);
+const $ = s => document.querySelector(s);
+const ls = {
+  get(k, d){ try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch(e){ return d; } },
+  set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} }
+};
+const uuid = () => (crypto.randomUUID ? crypto.randomUUID() :
+  'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => { const r = Math.random()*16|0; return (c==='x'?r:(r&3|8)).toString(16); }));
+
+let voterId = ls.get('dv_voter', null);
+if (!voterId) { voterId = uuid(); ls.set('dv_voter', voterId); }
+
+/* ---------------------------------------------------------------- API */
+const shuffle = a => { for (let i=a.length-1;i>0;i--){ const j=Math.random()*(i+1)|0; [a[i],a[j]]=[a[j],a[i]]; } return a; };
+
+function demoDesigns(){
+  const names = ['Midnight Bloom','Sand Dune','Rose Ember','Ivory Thread','Olive Grove','Coral Dusk','Slate Study','Marigold','Plum Velvet','Sea Glass',
+                 'Mocha Line','Pearl Mist','Ruby Night','Sage Garden','Copper Sun','Lilac Haze','Forest Ink','Blush Petal','Teal Weave','Saffron'];
+  return names.map((n,i) => {
+    const h = (i*47+12)%360, h2 = (h+40)%360;
+    const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='600' height='800'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'>
+      <stop offset='0' stop-color='hsl(${h},55%,42%)'/><stop offset='1' stop-color='hsl(${h2},60%,18%)'/></linearGradient></defs>
+      <rect width='600' height='800' fill='url(#g)'/><circle cx='${150+(i%4)*90}' cy='${260+(i%3)*60}' r='${110+(i%5)*14}' fill='hsla(${h2},70%,70%,.18)'/>
+      <rect x='60' y='430' width='480' height='8' fill='rgba(255,255,255,.25)'/><text x='60' y='400' fill='rgba(255,255,255,.85)' font-size='34' font-family='Georgia'>DEMO ${i+1}</text></svg>`;
+    return { id: 'demo-'+i, title: n, category: ['Lawn','Kurta','Abaya','Co-ord'][i%4], url: 'data:image/svg+xml;utf8,' + encodeURIComponent(svg) };
+  });
+}
+
+let sb = null;
+if (!DEMO) sb = supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY, { auth: { persistSession: false } });
+const publicUrl = p => `${cfg.SUPABASE_URL}/storage/v1/object/public/designs/${encodeURI(p)}`;
+
+const api = DEMO ? {
+  async deck(){ const done = ls.get('dv_demo_votes', {}); return shuffle(demoDesigns().filter(d => !(d.id in done))); },
+  async settings(){ return { reward_enabled: true, reward_text: 'Demo reward: 10% off (not a real code)', reward_min_votes: 8 }; },
+  async vote(id, v){ const d = ls.get('dv_demo_votes', {}); d[id] = v; ls.set('dv_demo_votes', d); },
+  async claim(contact){ return { ok: true, code: 'DEMO10', text: 'Demo reward: 10% off (not a real code)' }; }
+} : {
+  async deck(){
+    const { data, error } = await sb.rpc('get_deck', { p_voter: voterId });
+    if (error) throw error;
+    return (data || []).map(d => ({ id: d.id, title: d.title, category: d.category, url: publicUrl(d.image_path) }));
+  },
+  async settings(){
+    const { data } = await sb.rpc('get_public_settings');
+    return (data && data[0]) || { reward_enabled: false, reward_text: '', reward_min_votes: 15 };
+  },
+  async vote(id, v){
+    // queue first so a dropped connection never loses a vote
+    const q = ls.get('dv_queue', []); q.push({ id, v }); ls.set('dv_queue', q);
+    await flushQueue();
+  },
+  async claim(contact, name){
+    const { data, error } = await sb.rpc('claim_reward', { p_voter: voterId, p_contact: contact, p_name: name || null });
+    if (error) return { ok: false, error: 'network' };
+    return data;
+  }
+};
+
+let flushing = false;
+async function flushQueue(){
+  if (DEMO || flushing) return;
+  flushing = true;
+  try {
+    let q = ls.get('dv_queue', []);
+    while (q.length) {
+      const it = q[0];
+      const { error } = await sb.rpc('cast_vote', { p_voter: voterId, p_design: it.id, p_vote: it.v, p_ua: navigator.userAgent });
+      if (error) break;
+      q.shift(); ls.set('dv_queue', q);
+    }
+  } catch(e) {} finally { flushing = false; }
+}
+window.addEventListener('online', flushQueue);
+
+/* ---------------------------------------------------------------- state */
+let deck = [], idx = 0, busy = false;
+let session = { love: 0, must: 0, pass: 0 };
+let totalVotes = ls.get('dv_count', 0);
+let settings = { reward_enabled: false, reward_text: '', reward_min_votes: 15 };
+let claimedCode = ls.get('dv_code', null);
+let rewardAnnounced = ls.get('dv_reward_seen', false);
+const els = new Map();
+
+const stage = $('#stage');
+const show = n => { document.body.dataset.screen = n; };
+['#brandW','#brandD','#brandX'].forEach(s => $(s).textContent = BRAND);
+document.title = BRAND + ' - pick our next drop';
+
+/* ---------------------------------------------------------------- toast + confetti */
+let toastT;
+function toast(msg, ms = 2200){
+  const t = $('#toast'); t.textContent = msg; t.classList.add('on');
+  clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), ms);
+}
+const fx = $('#fx'), fctx = fx.getContext('2d'); let parts = [], raf = 0;
+function sizeFx(){ fx.width = innerWidth * devicePixelRatio; fx.height = innerHeight * devicePixelRatio; }
+sizeFx(); addEventListener('resize', sizeFx);
+function burst(n = 90, x = innerWidth/2, y = innerHeight*0.6){
+  const colors = ['#ff4d6d','#ffc247','#e9d3a2','#f5f2ec','#8ee3c8','#9ab8ff'];
+  for (let i=0;i<n;i++) parts.push({ x, y, vx:(Math.random()-.5)*14, vy:-Math.random()*14-4, g:.38, r:Math.random()*6+3,
+    c:colors[i%colors.length], rot:Math.random()*6, vr:(Math.random()-.5)*.4, life:1 });
+  if (!raf) raf = requestAnimationFrame(tick);
+}
+function tick(){
+  fctx.clearRect(0,0,fx.width,fx.height);
+  parts = parts.filter(p => p.life > 0 && p.y < innerHeight + 40);
+  for (const p of parts){
+    p.vy += p.g; p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.life -= .008;
+    fctx.save(); fctx.translate(p.x*devicePixelRatio, p.y*devicePixelRatio); fctx.rotate(p.rot);
+    fctx.globalAlpha = Math.max(p.life,0); fctx.fillStyle = p.c;
+    fctx.fillRect(-p.r*devicePixelRatio, -p.r*.5*devicePixelRatio, p.r*2*devicePixelRatio, p.r*devicePixelRatio);
+    fctx.restore();
+  }
+  raf = parts.length ? requestAnimationFrame(tick) : 0;
+  if (!parts.length) fctx.clearRect(0,0,fx.width,fx.height);
+}
+const buzz = ms => { try { navigator.vibrate && navigator.vibrate(ms); } catch(e){} };
+
+/* ---------------------------------------------------------------- cards */
+function makeCard(d){
+  const c = document.createElement('div'); c.className = 'card'; c.dataset.id = d.id;
+  const img = new Image(); img.draggable = false; img.alt = d.title || 'Design';
+  img.onload = () => { c.style.animation = 'none'; c.style.background = '#18181c'; };
+  img.src = d.url; c.appendChild(img);
+  if (d.title || d.category){
+    const cap = document.createElement('div'); cap.className = 'cap';
+    if (d.title){ const b = document.createElement('b'); b.textContent = d.title; cap.appendChild(b); }
+    if (d.category){ const s = document.createElement('span'); s.textContent = d.category; cap.appendChild(s); }
+    c.appendChild(cap);
+  }
+  const z = document.createElement('div'); z.className = 'zoomhint'; z.textContent = 'tap to zoom'; c.appendChild(z);
+  ['love:LOVE','pass:PASS','must:MUST HAVE'].forEach(s => {
+    const [k, t] = s.split(':'); const e = document.createElement('div'); e.className = 'stamp ' + k; e.textContent = t; c.appendChild(e);
+  });
+  attachDrag(c, d);
+  return c;
+}
+const getEl = i => { if (i >= deck.length) return null; if (!els.has(i)) els.set(i, makeCard(deck[i])); return els.get(i); };
+
+function layout(){
+  for (let k = 2; k >= 0; k--){
+    const el = getEl(idx + k); if (!el) continue;
+    if (!el.isConnected) stage.appendChild(el);
+    el.style.zIndex = 10 - k;
+    el.style.transition = 'transform .35s cubic-bezier(.2,.8,.2,1), opacity .35s';
+    el.style.transform = k === 0 ? 'none' : `translateY(${k*14}px) scale(${1 - k*0.05})`;
+    el.style.opacity = k === 0 ? 1 : (k === 1 ? .85 : .6);
+    el.style.pointerEvents = k === 0 ? 'auto' : 'none';
+  }
+  for (let k = 3; k <= 5; k++){ if (idx + k < deck.length){ const im = new Image(); im.src = deck[idx+k].url; } }
+  const total = deck.length;
+  $('#count').textContent = Math.min(idx + 1, total) + ' / ' + total;
+  $('#barFill').style.width = (idx / total * 100) + '%';
+}
+
+function attachDrag(el, d){
+  let sx = 0, sy = 0, dx = 0, dy = 0, down = false, moved = false;
+  const st = {
+    love: el.querySelector('.stamp.love'), pass: el.querySelector('.stamp.pass'), must: el.querySelector('.stamp.must')
+  };
+  const clamp = v => Math.max(0, Math.min(1, v));
+  el.addEventListener('pointerdown', e => {
+    if (busy || el !== getEl(idx)) return;
+    down = true; moved = false; sx = e.clientX; sy = e.clientY; dx = dy = 0;
+    el.setPointerCapture(e.pointerId); el.style.transition = 'none'; el.style.cursor = 'grabbing';
+  });
+  el.addEventListener('pointermove', e => {
+    if (!down) return;
+    dx = e.clientX - sx; dy = e.clientY - sy;
+    if (Math.abs(dx) + Math.abs(dy) > 8) moved = true;
+    el.style.transform = `translate(${dx}px,${dy}px) rotate(${dx * 0.06}deg)`;
+    const up = dy < 0 && Math.abs(dx) < 80;
+    st.love.style.opacity = clamp(dx / 110); st.pass.style.opacity = clamp(-dx / 110);
+    st.must.style.opacity = up ? clamp(-dy / 110) : 0;
+  });
+  const end = () => {
+    if (!down) return; down = false; el.style.cursor = 'grab';
+    if (!moved){ openZoom(d.url); resetCard(); return; }
+    if (dx > 100) return decide('love');
+    if (dx < -100) return decide('pass');
+    if (dy < -110 && Math.abs(dx) < 90) return decide('must');
+    resetCard();
+  };
+  const resetCard = () => {
+    el.style.transition = 'transform .3s cubic-bezier(.2,.8,.2,1)'; el.style.transform = 'none';
+    Object.values(st).forEach(s => s.style.opacity = 0);
+  };
+  el.addEventListener('pointerup', end); el.addEventListener('pointercancel', end);
+}
+
+/* ---------------------------------------------------------------- voting */
+const MILESTONES = {
+  5:  'Nice start - keep going!',
+  10: '10 down. You have taste.',
+  20: '20 designs rated - legend.',
+  30: 'Your picks are shaping the collection.',
+  40: 'Almost there - stay sharp!',
+  50: '50! You are officially a stylist.'
+};
+function decide(v){
+  if (busy) return; const top = getEl(idx); if (!top) return;
+  busy = true;
+  const d = deck[idx];
+  const out = {
+    love: 'translate(520px,-40px) rotate(24deg)',
+    pass: 'translate(-520px,-40px) rotate(-24deg)',
+    must: 'translate(0,-720px) rotate(0deg) scale(1.05)'
+  }[v];
+  top.style.transition = 'transform .32s ease-in, opacity .32s';
+  const stamp = top.querySelector('.stamp.' + v); if (stamp) stamp.style.opacity = 1;
+  top.style.transform = out; top.style.opacity = 0;
+  buzz(v === 'pass' ? 8 : [10, 30, 10]);
+
+  api.vote(d.id, v).catch(() => {});
+  session[v]++; totalVotes++; ls.set('dv_count', totalVotes);
+  if (v === 'must') burst(28, innerWidth/2, innerHeight*0.45);
+
+  setTimeout(() => {
+    top.remove(); els.delete(idx); idx++; busy = false;
+    const n = idx;
+    if (MILESTONES[n]) toast(MILESTONES[n]);
+    if (n === Math.floor(deck.length / 2) && deck.length >= 10){ burst(70); toast('Halfway there!'); }
+    checkReward();
+    if (idx >= deck.length) return finish();
+    layout();
+  }, 300);
+}
+
+function checkReward(){
+  if (!settings.reward_enabled || claimedCode) return;
+  if (totalVotes >= settings.reward_min_votes){
+    $('#giftPill').classList.add('show');
+    if (!rewardAnnounced){
+      rewardAnnounced = true; ls.set('dv_reward_seen', true);
+      setTimeout(() => { burst(110); toast('🎁 Reward unlocked! Tap the gift to claim'); }, 350);
+    }
+  }
+}
+
+/* ---------------------------------------------------------------- done */
+function finish(){
+  show('done');
+  const empty = deck.length === 0;
+  $('#doneTitle').textContent = empty ? 'You are all caught up' : "You've seen them all!";
+  $('#doneText').textContent = empty
+    ? 'No new designs right now. We add fresh ones often - come back soon and vote again.'
+    : 'Thank you! Every swipe helps us decide what to make next. New designs drop regularly, so check back.';
+  const ms = $('#myStats'); ms.innerHTML = '';
+  if (!empty){
+    [['♥', session.love, 'loved'], ['★', session.must, 'must-haves'], ['✕', session.pass, 'passed']].forEach(([i, n, l]) => {
+      const d = document.createElement('div'); const b = document.createElement('b'); b.textContent = i + ' ' + n;
+      const s = document.createElement('span'); s.textContent = l; d.append(b, s); ms.appendChild(d);
+    });
+    burst(140);
+  }
+  const canClaim = settings.reward_enabled && !claimedCode && totalVotes >= settings.reward_min_votes;
+  $('#claimBtn').style.display = canClaim ? '' : 'none';
+  if (cfg.SHOP_URL){ const a = $('#shopBtn'); a.href = cfg.SHOP_URL; a.style.display = ''; }
+  if (cfg.WHATSAPP_SHARE !== false) $('#shareBtn').style.display = '';
+}
+
+/* ---------------------------------------------------------------- reward claim */
+function openClaim(){
+  $('#claimForm').style.display = ''; $('#claimDone').style.display = 'none'; $('#cErr').textContent = '';
+  if (claimedCode) return showCode(claimedCode, settings.reward_text);
+  $('#claimOv').classList.add('on');
+}
+function showCode(code, text){
+  $('#claimForm').style.display = 'none'; $('#claimDone').style.display = '';
+  $('#rewardText').textContent = text || 'Your reward code:'; $('#rewardCode').textContent = code;
+  $('#claimOv').classList.add('on');
+}
+$('#cSubmit').onclick = async () => {
+  const contact = $('#cContact').value.trim(), name = $('#cName').value.trim();
+  const okPhone = /^\+?[0-9 ()\-]{10,16}$/.test(contact), okMail = /^\S+@\S+\.\S+$/.test(contact);
+  if (!okPhone && !okMail){ $('#cErr').textContent = 'Please enter a valid WhatsApp number or email.'; return; }
+  $('#cSubmit').disabled = true; $('#cSubmit').textContent = 'Unlocking...';
+  await flushQueue();
+  const r = await api.claim(contact, name);
+  $('#cSubmit').disabled = false; $('#cSubmit').textContent = 'Unlock my gift';
+  if (!r || !r.ok){
+    const m = { not_enough_votes: 'Rate a few more designs to unlock your gift.', bad_contact: 'Please check your number or email.',
+                network: 'Connection problem - please try again.', rewards_off: 'Rewards are not available right now.' };
+    $('#cErr').textContent = m[r && r.error] || 'Something went wrong. Please try again.'; return;
+  }
+  claimedCode = r.code; ls.set('dv_code', r.code);
+  $('#giftPill').classList.remove('show'); $('#claimBtn').style.display = 'none';
+  showCode(r.code, r.text); burst(120);
+};
+$('#cCancel').onclick = () => $('#claimOv').classList.remove('on');
+$('#closeClaim').onclick = () => $('#claimOv').classList.remove('on');
+$('#copyBtn').onclick = async () => {
+  try { await navigator.clipboard.writeText(claimedCode); toast('Code copied'); } catch(e){ toast('Long-press the code to copy'); }
+};
+$('#giftPill').onclick = openClaim;
+$('#claimBtn').onclick = openClaim;
+
+$('#shareBtn').onclick = () => {
+  const url = location.href.split('?')[0].split('#')[0];
+  const text = `Help ${BRAND} pick its next designs - swipe and get a gift: ${url}`;
+  if (navigator.share){ navigator.share({ title: BRAND, text, url }).catch(() => {}); }
+  else window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+};
+
+/* ---------------------------------------------------------------- zoom */
+function openZoom(url){ $('#zoom img').src = url; $('#zoom').classList.add('on'); }
+$('#zoom').onclick = () => $('#zoom').classList.remove('on');
+
+/* ---------------------------------------------------------------- controls */
+$('#bLove').onclick = () => decide('love');
+$('#bPass').onclick = () => decide('pass');
+$('#bMust').onclick = () => decide('must');
+addEventListener('keydown', e => {
+  if (document.body.dataset.screen !== 'deck' || $('#claimOv').classList.contains('on')) return;
+  if (e.key === 'ArrowRight') decide('love');
+  else if (e.key === 'ArrowLeft') decide('pass');
+  else if (e.key === 'ArrowUp') decide('must');
+  else if (e.key === 'Escape') $('#zoom').classList.remove('on');
+});
+
+/* ---------------------------------------------------------------- boot */
+$('#startBtn').onclick = () => {
+  if (!deck.length) return finish();
+  show('deck'); layout(); checkReward();
+};
+
+(async function boot(){
+  $('#startBtn').disabled = true; $('#loadNote').textContent = 'Loading designs...';
+  try {
+    const [s, d] = await Promise.all([api.settings().catch(() => settings), api.deck()]);
+    settings = s; deck = d;
+    if (DEMO) $('#loadNote').textContent = 'DEMO MODE - add your Supabase keys in config.js to go live.';
+    else $('#loadNote').textContent = deck.length ? deck.length + ' designs waiting for your verdict' : '';
+    if (settings.reward_enabled){
+      $('#giftW').style.display = ''; $('#giftW').textContent = '🎁 Rate ' + settings.reward_min_votes + ' designs and unlock a thank-you gift';
+    }
+    deck.slice(0, 3).forEach(x => { const im = new Image(); im.src = x.url; });
+    flushQueue();
+  } catch (e) {
+    $('#loadNote').textContent = 'Could not load designs. Please check your connection and refresh.';
+    console.error(e);
+  }
+  $('#startBtn').disabled = false;
+  if (!deck.length && !$('#loadNote').textContent.startsWith('Could')) { $('#startBtn').textContent = 'See what is new'; }
+})();
+})();
+</script>
+</body>
+</html>
